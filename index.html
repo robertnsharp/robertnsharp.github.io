@@ -15,7 +15,8 @@
 <body>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.1.0/papaparse.js"></script>
 <script>
-var table = Papa.parse("/covid-19-cases-by-notification-date-and-postcode-local-health-district-and-local-government-area.csv", {
+var url = new URL("/covid-19-cases-by-notification-date-and-postcode-local-health-district-and-local-government-area.csv", window.location.origin).toString();
+var table = Papa.parse(url, {
 	worker: true,
 	download: true,
 	header: true,
