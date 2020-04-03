@@ -13,18 +13,50 @@
 </head>
 
 <body>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.1.0/papaparse.js"></script>
+  <script src="https://d3js.org/d3.v5.js"></script>
+	<script src="https://d3js.org/d3-array.v2.min.js"></script>
+
+<!-- Color Scale -->
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+<div id="chart"></div>
+
 <script>
-var url = new URL("/covid-19-cases-by-notification-date-and-postcode-local-health-district-and-local-government-area.csv", window.location.origin).toString();
-var table = Papa.parse(url, {
-	worker: true,
-	download: true,
-	header: true,
-	dynamicTyping: true,
-	complete: function(results) {
-		console.log(results);
-	}
+
+// set the dimensions and margins of the graph
+var margin = {top: 10, right: 30, bottom: 30, left: 60},
+    width = 460 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom;
+
+// append the svg object to the body of the page
+var svg = d3.select("#my_dataviz")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+//Read the data
+d3.csv("/covid-19-cases-by-notification-date-and-postcode-local-health-district-and-local-government-area.csv").then(function(data) {
+	console.log(data);
+
+	// Group by postcode, then by date, sorting the dates.
+	var newCaseCountByPostcodeByDaySortedSparse = d3.nest()
+			.key(d => d.postcode)
+      .key(d => d.notification_date)
+      .rollup(d => d.length)
+      .sortKeys(d3.ascending)
+			.entries(data);
+	console.log(newCaseCountByPostcodeByDaySortedSparse);
+
+  // Within each postcode, accumulate daily totals
+  var cumulativeCasesByPostcodeByDaySortedSparse = newCaseCountByPostcodeByDaySortedSparse.map(d => d3.zip(d.values.map(e => e.key), d3.cumsum(d.values.map(e => e.value))));
+	console.log(cumulativeCasesByPostcodeByDaySortedSparse);
+
 });
+
 </script>
+
 </body>
 </html>
