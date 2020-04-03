@@ -51,8 +51,39 @@ d3.csv("/covid-19-cases-by-notification-date-and-postcode-local-health-district-
 	console.log(newCaseCountByPostcodeByDaySortedSparse);
 
   // Within each postcode, accumulate daily totals
-  var cumulativeCasesByPostcodeByDaySortedSparse = newCaseCountByPostcodeByDaySortedSparse.map(d => d3.zip(d.values.map(e => e.key), d3.cumsum(d.values.map(e => e.value))));
+  var cumulativeCasesByPostcodeByDaySortedSparse = newCaseCountByPostcodeByDaySortedSparse.map(d => ({postcode : d.key, cumulativeCaseCountByDate : d3.zip(d.values.map(e => e.key), d3.cumsum(d.values.map(e => e.value))).map(z => ({date: z[0], cumulativeCases: z[1]}))}));
 	console.log(cumulativeCasesByPostcodeByDaySortedSparse);
+
+  // At some point make this a user input
+  var postcode = "2049";
+
+  var postcodeCumulativeCases = cumulativeCasesByPostcodeByDaySortedSparse.get(postcode);
+  
+    // Add X axis --> it is a date format
+      var x = d3.scaleTime()
+      .domain(d3.extent(postcodeCumulativeCases, function(d) { return d.date; }))
+      .range([ 0, width ]);
+    svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+
+    // Add Y axis
+    var y = d3.scaleLinear()
+      .domain([0, d3.max(data, function(d) { return +d.cumulativeCases; })])
+      .range([ height, 0 ]);
+    svg.append("g")
+      .call(d3.axisLeft(y));
+
+    // Add the line
+    svg.append("path")
+      .datum(data)
+      .attr("fill", "none")
+      .attr("stroke", "steelblue")
+      .attr("stroke-width", 1.5)
+      .attr("d", d3.line()
+        .x(function(d) { return x(d.date) })
+        .y(function(d) { return y(d.cumulativeCases) })
+        )
 
 });
 
