@@ -47,6 +47,7 @@ function(row) {
 
   // Calc date extent for x axis
   var dateExtent = d3.extent(data, d => d.date);
+  console.log(dateExtent);
 
 	// Group by postcode, then by date, sorting the dates.
 	var newCaseCountByPostcodeByDaySortedSparse = d3.nest()
@@ -98,11 +99,12 @@ function(row) {
           .attr("stroke-width", 1.5)
           .attr("d", function(d){
             var line = d3.line()
-              .x(function(d) { return x(d.cumulativeCaseCountByDate.date); })
-              .y(function(d) { return y(+d.cumulativeCaseCountByDate.cumulativeCases); })
-              (d.values);
-              return line;
-          })
+              .x(e => x(e.date))
+              .y(e => y(e.cumulativeCases))
+              (d.cumulativeCaseCountByDate);
+            console.log(line);
+            return line;
+          });
 
 });
 
