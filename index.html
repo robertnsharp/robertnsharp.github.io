@@ -60,6 +60,12 @@ function(row) {
   // Within each postcode, accumulate daily totals
   var cumulativeCasesByPostcodeByDaySortedSparse = newCaseCountByPostcodeByDaySortedSparse.map(d => ({postcode : d.key, cumulativeCaseCountByDate : d3.zip(d.values.map(e => e.key), d3.cumsum(d.values.map(e => e.value))).map(z => ({date: z[0], cumulativeCases: z[1]}))}));
 	console.log(cumulativeCasesByPostcodeByDaySortedSparse);
+
+  // Calculate cumulative count maximum for Y axis
+  var cumulativeCaseCountMax = d3.max(d3.merge(cumulativeCasesByPostcodeByDaySortedSparse.map(d => d.cumulativeCaseCountByDate.map(e => e.cumulativeCases))));
+  console.log(cumulativeCaseCountMax);
+
+  // Graph setup below here
   
     // Add X axis --> it is a date format
       var x = d3.scaleTime()
@@ -71,7 +77,7 @@ function(row) {
 
     // Add Y axis
     var y = d3.scaleLinear()
-      .domain([0, d3.max(cumulativeCasesByPostcodeByDaySortedSparse, function(d) { return +d.cumulativeCases; })])
+      .domain([0, cumulativeCaseCountMax])
       .range([ height, 0 ]);
     svg.append("g")
       .call(d3.axisLeft(y));
