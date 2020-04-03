@@ -29,7 +29,7 @@ var margin = {top: 10, right: 30, bottom: 30, left: 60},
     height = 400 - margin.top - margin.bottom;
 
 // append the svg object to the body of the page
-var svg = d3.select("#my_dataviz")
+var svg = d3.select("#chart")
   .append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
@@ -38,13 +38,20 @@ var svg = d3.select("#my_dataviz")
           "translate(" + margin.left + "," + margin.top + ")");
 
 //Read the data
-d3.csv("/covid-19-cases-by-notification-date-and-postcode-local-health-district-and-local-government-area.csv").then(function(data) {
+d3.csv("/covid-19-cases-by-notification-date-and-postcode-local-health-district-and-local-government-area.csv",
+function(row) {
+  return { postcode: row.postcode, date: new Date(row.notification_date) }
+})
+.then(function(data) {
 	console.log(data);
+
+  // Calc date extent for x axis
+  var dateExtent = d3.extent(data, d => d.date);
 
 	// Group by postcode, then by date, sorting the dates.
 	var newCaseCountByPostcodeByDaySortedSparse = d3.nest()
 			.key(d => d.postcode)
-      .key(d => d.notification_date)
+      .key(d => d.date)
       .rollup(d => d.length)
       .sortKeys(d3.ascending)
 			.entries(data);
@@ -53,15 +60,10 @@ d3.csv("/covid-19-cases-by-notification-date-and-postcode-local-health-district-
   // Within each postcode, accumulate daily totals
   var cumulativeCasesByPostcodeByDaySortedSparse = newCaseCountByPostcodeByDaySortedSparse.map(d => ({postcode : d.key, cumulativeCaseCountByDate : d3.zip(d.values.map(e => e.key), d3.cumsum(d.values.map(e => e.value))).map(z => ({date: z[0], cumulativeCases: z[1]}))}));
 	console.log(cumulativeCasesByPostcodeByDaySortedSparse);
-
-  // At some point make this a user input
-  var postcode = "2049";
-
-  var postcodeCumulativeCases = cumulativeCasesByPostcodeByDaySortedSparse.get(postcode);
   
     // Add X axis --> it is a date format
       var x = d3.scaleTime()
-      .domain(d3.extent(postcodeCumulativeCases, function(d) { return d.date; }))
+      .domain(dateExtent)
       .range([ 0, width ]);
     svg.append("g")
       .attr("transform", "translate(0," + height + ")")
@@ -69,21 +71,32 @@ d3.csv("/covid-19-cases-by-notification-date-and-postcode-local-health-district-
 
     // Add Y axis
     var y = d3.scaleLinear()
-      .domain([0, d3.max(data, function(d) { return +d.cumulativeCases; })])
+      .domain([0, d3.max(cumulativeCasesByPostcodeByDaySortedSparse, function(d) { return +d.cumulativeCases; })])
       .range([ height, 0 ]);
     svg.append("g")
       .call(d3.axisLeft(y));
 
-    // Add the line
-    svg.append("path")
-      .datum(data)
-      .attr("fill", "none")
-      .attr("stroke", "steelblue")
-      .attr("stroke-width", 1.5)
-      .attr("d", d3.line()
-        .x(function(d) { return x(d.date) })
-        .y(function(d) { return y(d.cumulativeCases) })
-        )
+    // color palette
+    var res = cumulativeCasesByPostcodeByDaySortedSparse.map(function(d){ return d.key }) // list of group names
+    var color = d3.scaleOrdinal()
+      .domain(res)
+      .range(['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#ffff33','#a65628','#f781bf','#999999'])
+
+    // Draw the line
+    svg.selectAll(".line")
+        .data(cumulativeCasesByPostcodeByDaySortedSparse)
+        .enter()
+        .append("path")
+          .attr("fill", "none")
+          .attr("stroke", function(d){ return color(d.key) })
+          .attr("stroke-width", 1.5)
+          .attr("d", function(d){
+            var line = d3.line()
+              .x(function(d) { return x(d.cumulativeCaseCountByDate.date); })
+              .y(function(d) { return y(+d.cumulativeCaseCountByDate.cumulativeCases); })
+              (d.values);
+              return line;
+          })
 
 });
 
