@@ -113,6 +113,9 @@ function(row) {
 .then(function(data) {
 	console.log(data);
 
+  // Sanitise: remove any rows where there's no postcode, or it's not parseable
+  data = data.filter(row => !isNaN(parseInt(row.postcode)));
+
   // Calc date extent for x axis
   var dateExtent = d3.extent(data, d => d3.isoParse(d.date));
   console.log(dateExtent);
