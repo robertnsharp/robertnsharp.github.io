@@ -75,6 +75,7 @@ function(row) {
   console.log(dateExtent);
 
 	// Group by postcode, sorted, then by date, sorted.
+  // TODO: replace nest() with d3 arrays group(), rollup(), and use stock js Map to make all of this a bit cleaner
 	var newCaseCountByPostcodeByDaySortedSparse = d3.nest()
 			.key(d => d.postcode)
       .sortKeys(d3.ascending)
@@ -91,6 +92,19 @@ function(row) {
   // Calculate cumulative count maximum for Y axis
   var cumulativeCaseCountMax = d3.max(d3.merge(cumulativeCasesByPostcodeByDaySortedSparse.map(d => d.cumulativeCaseCountByDate.map(e => e.cumulativeCases))));
   console.log(cumulativeCaseCountMax);
+
+  // Calculate count max and last case date per postcode for display
+  var lastCaseDateAndCumCountByPostcode = new Map();
+  for(let i = 0; i < cumulativeCasesByPostcodeByDaySortedSparse.length; i++) {
+    var entry = cumulativeCasesByPostcodeByDaySortedSparse[i];
+    var postcodeCumCaseCountByDate = entry.cumulativeCaseCountByDate;
+    var lastDateEntry;
+    for(let j = 0; j < postcodeCumCaseCountByDate.length; j++) {
+      lastDateEntry = postcodeCumCaseCountByDate[j];
+    }
+    lastCaseDateAndCumCountByPostcode.set(entry.postcode, lastDateEntry);
+  }
+  console.log(lastCaseDateAndCumCountByPostcode);
 
   // TODO: Add a point at the max date to each postcode that extends the cumulative total, so lines don't end at last case per postcode
 
@@ -146,15 +160,18 @@ function(row) {
       selectedPostcodePath.attr("stroke-width", 1);
       selectedPostcodePath.attr("opacity", 0.2);
       var postcodePathId = "#path-postcode-" + postcode;
+      //reset existing metrics
+      d3.select("#postcode-case-count").text("");
+      d3.select("#postcode-last-case-date").text("");
       //highlight path
       selectedPostcodePath = d3.select(postcodePathId);
       selectedPostcodePath.attr("stroke-width", 5);
       selectedPostcodePath.attr("opacity", 1);
       selectedPostcodePath.moveToFront();
       //update metrics
-      var lastCountInPostcode = cumulativeCasesByPostcodeByDaySortedSparse.get(postcode);
-      d3.select("#postcode-case-count").text("1234");
-      d3.select("#postcode-last-case-date").text("1234");
+      var lastCaseDateAndCumCount = lastCaseDateAndCumCountByPostcode.get(postcode);
+      d3.select("#postcode-case-count").text(lastCaseDateAndCumCount.cumulativeCases);
+      d3.select("#postcode-last-case-date").text(lastCaseDateAndCumCount.date);
       });
     });
 
