@@ -95,13 +95,14 @@ function(row) {
       .range(d3.schemePaired);
 
     // Draw the line
-    svg.selectAll(".line")
+    var paths = svg.selectAll(".line")
         .data(cumulativeCasesByPostcodeByDaySortedSparse)
         .enter()
         .append("path")
           .attr("fill", "none")
-          .attr("stroke", function(d){ return color(d.postcode) })
+          .attr("stroke", d => color(d.postcode))
           .attr("stroke-width", 1.5)
+          .attr("id", d => "pathPostcode" + d.postcode)
           .attr("d", function(d){
             var line = d3.line()
               .x(e => x(e.date))
@@ -109,6 +110,7 @@ function(row) {
               (d.cumulativeCaseCountByDate);
             return line;
           });
+    console.log(paths);
 
 });
 
