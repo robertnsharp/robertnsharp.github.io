@@ -131,31 +131,11 @@ function(row) {
       .domain(postcodes)
       .range(d3.schemePaired);
 
-    // Draw the line
-    var paths = svg.selectAll(".line")
-        .data(cumulativeCasesByPostcodeByDaySortedSparse)
-        .enter()
-        .append("path")
-          .attr("fill", "none")
-          .attr("stroke", d => color(d.postcode))
-          .attr("stroke-width", 1.5)
-          .attr("opacity", 0.2)
-          .attr("id", d => "path-postcode-" + d.postcode)
-          .attr("d", function(d){
-            var line = d3.line()
-              .curve(d3.curveBasis)
-              .x(e => x(e.date))
-              .y(e => y(e.cumulativeCases))
-              (d.cumulativeCaseCountByDate);
-            return line;
-          });
 
-
-        //handle postcode entry events
-        var selectedPostcodePath = d3.select();
     var postcodeInput = d3.select("#postcode-input");
-    postcodeInput.on("input", () => {
-      var postcode = postcodeInput.property("value");
+    var selectedPostcodePath = d3.select();
+    function setActivePostcode (postcode) {
+      postcodeInput.property("value", postcode);
       //reset existing highlighted path
       selectedPostcodePath.attr("stroke-width", 1);
       selectedPostcodePath.attr("opacity", 0.2);
@@ -172,9 +152,34 @@ function(row) {
       var lastCaseDateAndCumCount = lastCaseDateAndCumCountByPostcode.get(postcode);
       d3.select("#postcode-case-count").text(lastCaseDateAndCumCount.cumulativeCases);
       d3.select("#postcode-last-case-date").text(lastCaseDateAndCumCount.date);
-      });
-    });
+    };
 
+    //handle postcode entry events
+    postcodeInput.on("input", () => {
+      var postcode = postcodeInput.property("value");
+      setActivePostcode(postcode);
+      });
+
+    // Draw the line
+    var paths = svg.selectAll(".line")
+        .data(cumulativeCasesByPostcodeByDaySortedSparse)
+        .enter()
+        .append("path")
+          .attr("fill", "none")
+          .attr("stroke", d => color(d.postcode))
+          .attr("stroke-width", 1.5)
+          .attr("opacity", 0.2)
+          .attr("id", d => "path-postcode-" + d.postcode)
+          .on("mouseover", d => setActivePostcode(d.postcode))
+          .attr("d", function(d){
+            var line = d3.line()
+              .curve(d3.curveBasis)
+              .x(e => x(e.date))
+              .y(e => y(e.cumulativeCases))
+              (d.cumulativeCaseCountByDate);
+            return line;
+          });
+        });
 </script>
 
 </body>
