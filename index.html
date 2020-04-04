@@ -14,10 +14,9 @@
 
 <body>
   <script src="https://d3js.org/d3.v5.js"></script>
-	<script src="https://d3js.org/d3-array.v2.min.js"></script>
-
-<!-- Color Scale -->
-<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+  <script src="https://d3js.org/d3-array.v2.min.js"></script>
+  <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+  <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 
 <input type="text" id="postcode-input" name="postcode">
 
@@ -115,6 +114,7 @@ function(row) {
           .attr("id", d => "path-postcode-" + d.postcode)
           .attr("d", function(d){
             var line = d3.line()
+              .curve(d3.curveBasis)
               .x(e => x(e.date))
               .y(e => y(e.cumulativeCases))
               (d.cumulativeCaseCountByDate);
