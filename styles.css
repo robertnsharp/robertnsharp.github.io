@@ -4,12 +4,24 @@
     border: 1px solid gray;
 }
 
+#postcode-suburb-names {
+    font-style: oblique;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
 .centre-text {
     display: block;
     margin: auto;
-    text-align: center
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+    width: 80%;
 }
 
 .large-metric {
 
+}
+
+#title {
+    font-size: x-large;
 }

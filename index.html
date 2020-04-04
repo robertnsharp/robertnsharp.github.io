@@ -18,9 +18,17 @@
   <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
   <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 
+
+
   <div class="centre-text">
-    <p>What's your postcode?</p>
-    <input type="text" id="postcode-input" name="postcode">
+
+    <p id="title">COVID-19 Cases - New South Wales</p>
+
+    <p>Enter a postcode:</p>
+    <input type="text" id="postcode-input" name="postcode" autocomplete="off">
+    <p>
+      <div id="postcode-suburb-names">&nbsp</div>
+    </p>
   </div>
 
   <p></p>
@@ -29,13 +37,14 @@
 
 <div class="centre-text">
 
-  <div id="postcode-suburb-names"></div>
-
+  <p></p>
   Cases recorded:
   <div id="postcode-case-count" class="large-metric"></div>
 
+  <p></p>
   Last case recorded:
   <div id="postcode-last-case-date" class="large-metric"></div>
+
 </div>
 
 
@@ -156,7 +165,7 @@ function(row) {
       d3.select("#postcode-case-count").text("");
       d3.select("#postcode-last-case-date").text("");
       //reset active suburb names
-      d3.select("#postcode-suburb-names").text("");
+      d3.select("#postcode-suburb-names").html("&nbsp");
       //highlight path
       selectedPostcodePath = d3.select(postcodePathId);
       selectedPostcodePath.attr("stroke-width", 5);
