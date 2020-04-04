@@ -3,3 +3,13 @@
     margin: auto;
     border: 1px solid gray;
 }
+
+.centre-text {
+    display: block;
+    margin: auto;
+    text-align: center
+}
+
+.large-metric {
+
+}

@@ -18,9 +18,24 @@
   <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
   <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 
-<input type="text" id="postcode-input" name="postcode">
+  <div class="centre-text">
+    <p>What's your postcode?</p>
+    <input type="text" id="postcode-input" name="postcode">
+  </div>
 
+  <p></p>
 <div id="chart-container"></div>
+<p></p>
+
+<div class="centre-text">
+  Cases recorded in postcode:
+  <div id="postcode-case-count" class="large-metric"></div>
+
+  Last case recorded:
+  <div id="postcode-last-case-date" class="large-metric"></div>
+</div>
+
+
 
 <script>
 
@@ -120,22 +135,28 @@ function(row) {
               (d.cumulativeCaseCountByDate);
             return line;
           });
-    console.log(paths);
-    });
 
-    //handle postcode entry events
-    var selectedPostcodePath = d3.select();
+
+        //handle postcode entry events
+        var selectedPostcodePath = d3.select();
     var postcodeInput = d3.select("#postcode-input");
     postcodeInput.on("input", () => {
-      //reset existing selection
+      var postcode = postcodeInput.property("value");
+      //reset existing highlighted path
       selectedPostcodePath.attr("stroke-width", 1);
       selectedPostcodePath.attr("opacity", 0.2);
-      var postcodePathId = "#path-postcode-" + postcodeInput.property("value");
+      var postcodePathId = "#path-postcode-" + postcode;
+      //highlight path
       selectedPostcodePath = d3.select(postcodePathId);
       selectedPostcodePath.attr("stroke-width", 5);
       selectedPostcodePath.attr("opacity", 1);
       selectedPostcodePath.moveToFront();
+      //update metrics
+      var lastCountInPostcode = cumulativeCasesByPostcodeByDaySortedSparse.get(postcode);
+      d3.select("#postcode-case-count").text("1234");
+      d3.select("#postcode-last-case-date").text("1234");
       });
+    });
 
 </script>
 
