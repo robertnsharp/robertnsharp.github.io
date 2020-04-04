@@ -40,13 +40,14 @@ var svg = d3.select("#chart")
 //Read the data
 d3.csv("/covid-19-cases-by-notification-date-and-postcode-local-health-district-and-local-government-area.csv",
 function(row) {
-  return { postcode: row.postcode, date: new Date(row.notification_date) }
+  // Note dates are ISO date strings, so sortable
+  return { postcode: row.postcode, date: row.notification_date }
 })
 .then(function(data) {
 	console.log(data);
 
   // Calc date extent for x axis
-  var dateExtent = d3.extent(data, d => d.date);
+  var dateExtent = d3.extent(data, d => d3.isoParse(d.date));
   console.log(dateExtent);
 
 	// Group by postcode, then by date, sorting the dates.
@@ -59,7 +60,7 @@ function(row) {
 	console.log(newCaseCountByPostcodeByDaySortedSparse);
 
   // Within each postcode, accumulate daily totals
-  var cumulativeCasesByPostcodeByDaySortedSparse = newCaseCountByPostcodeByDaySortedSparse.map(d => ({postcode : d.key, cumulativeCaseCountByDate : d3.zip(d.values.map(e => e.key), d3.cumsum(d.values.map(e => e.value))).map(z => ({date: z[0], cumulativeCases: z[1]}))}));
+  var cumulativeCasesByPostcodeByDaySortedSparse = newCaseCountByPostcodeByDaySortedSparse.map(d => ({postcode : d.key, cumulativeCaseCountByDate : d3.zip(d.values.map(e => d3.isoParse(e.key)), d3.cumsum(d.values.map(e => e.value))).map(z => ({date: z[0], cumulativeCases: z[1]}))}));
 	console.log(cumulativeCasesByPostcodeByDaySortedSparse);
 
   // Calculate cumulative count maximum for Y axis
@@ -99,7 +100,7 @@ function(row) {
           .attr("stroke-width", 1.5)
           .attr("d", function(d){
             var line = d3.line()
-              .x(e => x(e.date))
+              .x(e => x(e.date.getTime()))
               .y(e => y(e.cumulativeCases))
               (d.cumulativeCaseCountByDate);
             console.log(line);
