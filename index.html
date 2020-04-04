@@ -55,8 +55,20 @@
   Last case recorded:
   <div id="postcode-last-case-date" class="large-metric"></div>
 
-</div>
+  <br>
+  <br>
+  <p></p>
+  The <a href="https://data.nsw.gov.au/data/dataset/covid-19-cases-by-location">data</a> in this visualisation is provided by the NSW Ministry of Health. No guarantees are made about the accuracy or recency of the data displayed. For more local COVID-19 data check out <a href="https://www.covid19data.com.au">covid19data.com.au</a> and <a href="http://www.covid19sydney.com">covid19sydney.com</a>.
+  <p></p>
+  
+  <br>
+  <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
 
+  <br>
+  <br>
+  Hacked together by <a href="https://www.linkedin.com/in/robertnsharp/">Sharpie</a>.
+
+</div>
 
 
 <script>
@@ -160,7 +172,7 @@ function(row) {
     var postcodes = cumulativeCasesByPostcodeByDaySortedSparse.map(d => d.postcode);
     var color = d3.scaleOrdinal()
       .domain(postcodes)
-      .range(d3.schemePaired);
+      .range(d3.schemeCategory10);
 
 
     var postcodeInput = d3.select("#postcode-input");
