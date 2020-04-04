@@ -85,7 +85,7 @@ function(row) {
       .domain([1, cumulativeCaseCountMax])
       .range([ height, 0 ]);
     svg.append("g")
-      .call(d3.axisLeft(y));
+      .call(d3.axisLeft(y).ticks(20, ','));
 
     // color palette
     var postcodes = cumulativeCasesByPostcodeByDaySortedSparse.map(d => d.postcode);
