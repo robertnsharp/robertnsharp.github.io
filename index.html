@@ -28,7 +28,10 @@
 <p></p>
 
 <div class="centre-text">
-  Cases recorded in postcode:
+
+  <div id="postcode-suburb-names"></div>
+
+  Cases recorded:
   <div id="postcode-case-count" class="large-metric"></div>
 
   Last case recorded:
@@ -61,7 +64,16 @@ var svg = d3.select("#chart-container")
     .attr("transform",
           "translate(" + margin.left + "," + margin.top + ")");
 
-//Read the data
+//Read the postcode table data
+var postCodeToPlaces, placesToPostCode;
+d3.csv("/au_postcodes.csv", row => ({ postcode: row.postcode, place_name: row.place_name })).then(function(data) {
+  postCodeToPlaces = d3.group(data, d => d.postcode);
+  console.log(postCodeToPlaces);
+  placesToPostCode = d3.group(data, d => d.place_name);
+  console.log(placesToPostCode);
+});
+
+//Read the cases data
 d3.csv("/covid-19-cases-by-notification-date-and-postcode-local-health-district-and-local-government-area.csv",
 function(row) {
   // Note dates are ISO date strings, so sortable
@@ -143,6 +155,8 @@ function(row) {
       //reset existing metrics
       d3.select("#postcode-case-count").text("");
       d3.select("#postcode-last-case-date").text("");
+      //reset active suburb names
+      d3.select("#postcode-suburb-names").text("");
       //highlight path
       selectedPostcodePath = d3.select(postcodePathId);
       selectedPostcodePath.attr("stroke-width", 5);
@@ -152,6 +166,9 @@ function(row) {
       var lastCaseDateAndCumCount = lastCaseDateAndCumCountByPostcode.get(postcode);
       d3.select("#postcode-case-count").text(lastCaseDateAndCumCount.cumulativeCases);
       d3.select("#postcode-last-case-date").text(lastCaseDateAndCumCount.date);
+      //update active suburb names for this postcode
+      let suburbNames = postCodeToPlaces.get(postcode).map(d => d.place_name).join(", ");
+      d3.select("#postcode-suburb-names").text(suburbNames);
     };
 
     //handle postcode entry events
@@ -180,6 +197,7 @@ function(row) {
             return line;
           });
         });
+
 </script>
 
 </body>
