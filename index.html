@@ -174,7 +174,7 @@ function(row) {
       //update metrics
       var lastCaseDateAndCumCount = lastCaseDateAndCumCountByPostcode.get(postcode);
       d3.select("#postcode-case-count").text(lastCaseDateAndCumCount.cumulativeCases);
-      d3.select("#postcode-last-case-date").text(lastCaseDateAndCumCount.date);
+      d3.select("#postcode-last-case-date").text(d3.timeFormat("%B %d, %Y")(lastCaseDateAndCumCount.date));
       //update active suburb names for this postcode
       let suburbNames = postCodeToPlaces.get(postcode).map(d => d.place_name).join(", ");
       d3.select("#postcode-suburb-names").text(suburbNames);
