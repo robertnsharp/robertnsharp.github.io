@@ -99,9 +99,7 @@ var svg = d3.select("#chart-container")
 var postCodeToPlaces, placesToPostCode;
 d3.csv("/au_postcodes.csv", row => ({ postcode: row.postcode, place_name: row.place_name })).then(function(data) {
   postCodeToPlaces = d3.group(data, d => d.postcode);
-  console.log(postCodeToPlaces);
   placesToPostCode = d3.group(data, d => d.place_name);
-  console.log(placesToPostCode);
 });
 
 //Read the cases data
@@ -111,14 +109,12 @@ function(row) {
   return { postcode: row.postcode, date: row.notification_date }
 })
 .then(function(data) {
-	console.log(data);
 
   // Sanitise: remove any rows where there's no postcode, or it's not parseable
   data = data.filter(row => !isNaN(parseInt(row.postcode)));
 
   // Calc date extent for x axis
   var dateExtent = d3.extent(data, d => d3.isoParse(d.date));
-  console.log(dateExtent);
 
 	// Group by postcode, sorted, then by date, sorted.
   // TODO: replace nest() with d3 arrays group(), rollup(), and use stock js Map to make all of this a bit cleaner
@@ -129,15 +125,12 @@ function(row) {
       .rollup(d => d.length)
       .sortKeys(d3.ascending)
 			.entries(data);
-	console.log(newCaseCountByPostcodeByDaySortedSparse);
 
   // Within each postcode, accumulate daily totals
   var cumulativeCasesByPostcodeByDaySortedSparse = newCaseCountByPostcodeByDaySortedSparse.map(d => ({postcode : d.key, cumulativeCaseCountByDate : d3.zip(d.values.map(e => d3.isoParse(e.key)), d3.cumsum(d.values.map(e => e.value))).map(z => ({date: z[0], cumulativeCases: z[1]}))}));
-	console.log(cumulativeCasesByPostcodeByDaySortedSparse);
 
   // Calculate cumulative count maximum for Y axis
   var cumulativeCaseCountMax = d3.max(d3.merge(cumulativeCasesByPostcodeByDaySortedSparse.map(d => d.cumulativeCaseCountByDate.map(e => e.cumulativeCases))));
-  console.log(cumulativeCaseCountMax);
 
   // Calculate count max and last case date per postcode for display
   var lastCaseDateAndCumCountByPostcode = new Map();
@@ -150,7 +143,6 @@ function(row) {
     }
     lastCaseDateAndCumCountByPostcode.set(entry.postcode, lastDateEntry);
   }
-  console.log(lastCaseDateAndCumCountByPostcode);
 
   // TODO: Add a point at the max date to each postcode that extends the cumulative total, so lines don't end at last case per postcode
 
