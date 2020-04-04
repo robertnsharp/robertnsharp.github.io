@@ -19,6 +19,8 @@
 <!-- Color Scale -->
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 
+<input type="text" id="postcode-input" name="postcode">
+
 <div id="chart-container"></div>
 
 <script>
@@ -102,7 +104,7 @@ function(row) {
           .attr("fill", "none")
           .attr("stroke", d => color(d.postcode))
           .attr("stroke-width", 1.5)
-          .attr("id", d => "pathPostcode" + d.postcode)
+          .attr("id", d => "path-postcode-" + d.postcode)
           .attr("d", function(d){
             var line = d3.line()
               .x(e => x(e.date))
@@ -111,8 +113,18 @@ function(row) {
             return line;
           });
     console.log(paths);
+    });
 
-});
+    //handle postcode entry events
+    var selectedPostcodePath = d3.select();
+    var postcodeInput = d3.select("#postcode-input");
+    postcodeInput.on("input", () => {
+      //reset existing selection
+      selectedPostcodePath.attr("stroke-width", 1.5);
+      var postcodePathId = "#path-postcode-" + postcodeInput.property("value");
+      selectedPostcodePath = d3.select(postcodePathId);
+      selectedPostcodePath.attr("stroke-width", 5);
+      });
 
 </script>
 
