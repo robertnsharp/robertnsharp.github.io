@@ -81,8 +81,8 @@ function(row) {
       .call(d3.axisBottom(x));
 
     // Add Y axis
-    var y = d3.scaleLinear()
-      .domain([0, cumulativeCaseCountMax])
+    var y = d3.scaleLog()
+      .domain([1, cumulativeCaseCountMax])
       .range([ height, 0 ]);
     svg.append("g")
       .call(d3.axisLeft(y));
