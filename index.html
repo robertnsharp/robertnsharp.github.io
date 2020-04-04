@@ -25,6 +25,13 @@
 
 <script>
 
+// Allows moving paths to front of graph for visibility
+d3.selection.prototype.moveToFront = function() {
+  return this.each(function(){
+  this.parentNode.appendChild(this);
+  });
+};
+
 // set the dimensions and margins of the graph
 var margin = {top: 10, right: 30, bottom: 30, left: 60},
     width = 920 - margin.left - margin.right,
@@ -104,6 +111,7 @@ function(row) {
           .attr("fill", "none")
           .attr("stroke", d => color(d.postcode))
           .attr("stroke-width", 1.5)
+          .attr("opacity", 0.2)
           .attr("id", d => "path-postcode-" + d.postcode)
           .attr("d", function(d){
             var line = d3.line()
@@ -120,10 +128,13 @@ function(row) {
     var postcodeInput = d3.select("#postcode-input");
     postcodeInput.on("input", () => {
       //reset existing selection
-      selectedPostcodePath.attr("stroke-width", 1.5);
+      selectedPostcodePath.attr("stroke-width", 1);
+      selectedPostcodePath.attr("opacity", 0.2);
       var postcodePathId = "#path-postcode-" + postcodeInput.property("value");
       selectedPostcodePath = d3.select(postcodePathId);
       selectedPostcodePath.attr("stroke-width", 5);
+      selectedPostcodePath.attr("opacity", 1);
+      selectedPostcodePath.moveToFront();
       });
 
 </script>
