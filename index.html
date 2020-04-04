@@ -50,9 +50,10 @@ function(row) {
   var dateExtent = d3.extent(data, d => d3.isoParse(d.date));
   console.log(dateExtent);
 
-	// Group by postcode, then by date, sorting the dates.
+	// Group by postcode, sorted, then by date, sorted.
 	var newCaseCountByPostcodeByDaySortedSparse = d3.nest()
 			.key(d => d.postcode)
+      .sortKeys(d3.ascending)
       .key(d => d.date)
       .rollup(d => d.length)
       .sortKeys(d3.ascending)
@@ -85,10 +86,10 @@ function(row) {
       .call(d3.axisLeft(y));
 
     // color palette
-    var res = cumulativeCasesByPostcodeByDaySortedSparse.map(function(d){ return d.key }) // list of group names
+    var postcodes = cumulativeCasesByPostcodeByDaySortedSparse.map(d => d.postcode);
     var color = d3.scaleOrdinal()
-      .domain(res)
-      .range(['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#ffff33','#a65628','#f781bf','#999999'])
+      .domain(postcodes)
+      .range(d3.schemePaired);
 
     // Draw the line
     svg.selectAll(".line")
@@ -96,14 +97,13 @@ function(row) {
         .enter()
         .append("path")
           .attr("fill", "none")
-          .attr("stroke", function(d){ return color(d.key) })
+          .attr("stroke", function(d){ return color(d.postcode) })
           .attr("stroke-width", 1.5)
           .attr("d", function(d){
             var line = d3.line()
               .x(e => x(e.date.getTime()))
               .y(e => y(e.cumulativeCases))
               (d.cumulativeCaseCountByDate);
-            console.log(line);
             return line;
           });
 
