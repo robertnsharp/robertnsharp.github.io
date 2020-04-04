@@ -68,6 +68,8 @@ function(row) {
   var cumulativeCaseCountMax = d3.max(d3.merge(cumulativeCasesByPostcodeByDaySortedSparse.map(d => d.cumulativeCaseCountByDate.map(e => e.cumulativeCases))));
   console.log(cumulativeCaseCountMax);
 
+  // TODO: Add a point at the max date to each postcode that extends the cumulative total, so lines don't end at last case per postcode
+
   // Graph setup below here
   
     // Add X axis --> it is a date format
@@ -101,7 +103,7 @@ function(row) {
           .attr("stroke-width", 1.5)
           .attr("d", function(d){
             var line = d3.line()
-              .x(e => x(e.date.getTime()))
+              .x(e => x(e.date))
               .y(e => y(e.cumulativeCases))
               (d.cumulativeCaseCountByDate);
             return line;
