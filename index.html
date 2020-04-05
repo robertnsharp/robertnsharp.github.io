@@ -103,7 +103,7 @@ d3.csv("/au_postcodes.csv", row => ({ postcode: row.postcode, place_name: row.pl
 });
 
 //Read the cases data
-d3.csv("/covid-19-cases-by-notification-date-and-postcode-local-health-district-and-local-government-area.csv",
+d3.csv("/cases.csv",
 function(row) {
   // Note dates are ISO date strings, so sortable
   return { postcode: row.postcode, date: row.notification_date }
